@@ -53,7 +53,7 @@ const J={ㄱ:'R',ㄲ:'R',ㄴ:'S',ㄷ:'E',ㄸ:'E',ㄹ:'F',ㅁ:'A',ㅂ:'Q',ㅃ:'Q'
 const mk=(si,sp)=>({si,m:Object.fromEntries(sp.m.map(k=>[k,(sp.d||{})[k]||''])),reps:sp.rl?sp.rl.slice():rng(sp.reps).map(i=>(i+1)+'회'),rows:sp.fix?sp.fix.map(l=>({nom:l,v:{}})):rng(sp.rc).map(()=>({nom:'',ch:'',v:{}}))});
 const today=()=>{const d=new Date();return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')};
 const U=()=>({reg:'',recv:'',mfr:'',model:'',sn:'',memo:''});
-const fresh=()=>({type:'temp',insp:'',date:today(),n:3,pre:'C-'+new Date().getFullYear()+'-',start:'',units:[U(),U(),U()],tb:{}});
+const fresh=()=>({type:'temp',insp:'',date:today(),n:1,pre:'C-'+new Date().getFullYear()+'-',start:'',units:[U()],tb:{}});
 let S;try{S=JSON.parse(localStorage.getItem(K))||fresh()}catch(e){S=fresh()}
 const sv=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const TB=()=>S.tb[S.type]||(S.tb[S.type]=T[S.type].t.map((sp,i)=>mk(i,sp)));
