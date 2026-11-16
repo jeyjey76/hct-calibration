@@ -64,22 +64,22 @@ const sel=(p,v,o)=>`<select data-p="${p}">${o.map(x=>`<option${x==v?' selected':
 const inp=(p,v,x='')=>`<input data-p="${p}" value="${esc(v)}" enterkeyhint="next" autocomplete="off" ${x}>`;
 function R(){
 while(S.units.length<S.n)S.units.push(U());
-const tb=TB(),n=S.n,ty=T[S.type],ths=rng(n).map(u=>`<th>${u+1}번</th>`).join('');
+const tb=TB(),n=S.n,ty=T[S.type],ths=rng(n).map(u=>`<th class="u">${u+1}번</th>`).join('');
 let h=`<datalist id="fl"><option value="유압"><option value="공압"><option value="수압"></datalist><h1>HCT Calibration</h1><div class="top"><button class="g" data-a="save">저장하기</button><button class="r" data-a="reset">초기화</button></div>`;
-h+=`<div class="card"><div class="row"><label>교정자ID</label>${inp('insp',S.insp,'placeholder="T00000" style="width:100px"')}<label>교정일자</label>${inp('date',S.date,'inputmode="numeric" style="width:100px"')}</div>`;
+h+=`<div class="card"><div class="row"><span class="grp"><label>교정자ID</label>${inp('insp',S.insp,'placeholder="T00000" maxlength="6" style="width:84px"')}</span><span class="grp"><label>교정일자</label>${inp('date',S.date,'inputmode="numeric" maxlength="8" style="width:92px"')}</span></div>`;
 h+=`<div class="row"><span class="grp"><label>교정대상</label><select id="type">${Object.keys(T).map(k=>`<option value="${k}"${k==S.type?' selected':''}>${T[k].name}</option>`).join('')}</select></span><span class="grp"><label>장비 수</label><button class="s" data-a="n-">−</button><b>${n}</b><button class="s" data-a="n+">＋</button></span></div>`;
-h+=`<div class="row"><label>접수번호</label>${inp('pre',S.pre,'style="width:90px"')}${inp('start',S.start,'inputmode="numeric" placeholder="시작번호" style="width:90px"')}<button class="s" data-a="recv">자동입력</button></div>`;
+h+=`<div class="row"><span class="grp"><label>접수번호</label>${inp('pre',S.pre,'maxlength="7" style="width:84px"')}${inp('start',S.start,'inputmode="numeric" placeholder="시작번호" style="width:90px"')}</span><button class="s" data-a="recv">자동입력</button></div>`;
 h+=`<div class="sc"><table><tr><th class="st">장비</th>${ths}</tr>`;
 [['reg','등록번호'],['recv','접수번호'],['mfr','제조사',1],['model','모델',1],['sn','기기번호']].forEach(([k,l,c])=>{
 h+=`<tr><td class="st">${l}${c?` <button class="s" style="padding:2px 6px" data-a="cp:${k}" title="1번 값을 전체에 복사">⇉</button>`:''}</td>${rng(n).map(u=>`<td>${inp('units.'+u+'.'+k,S.units[u][k])}</td>`).join('')}</tr>`});
 h+='</table></div>'+rng(n).map(u=>`<div class="row" style="margin:8px 0 0;align-items:flex-start"><label style="width:62px;padding-top:6px">${u+1}번 메모</label><textarea data-p="units.${u}.memo" rows="1" enterkeyhint="next" style="flex:1">${esc(S.units[u].memo)}</textarea></div>`).join('')+'</div>';
 tb.forEach((t,ti)=>{
 const sp=ty.t[t.si],P=`tb.${S.type}.${ti}`,fx=!!sp.fix,one=t.reps.length==1;
-const dl=sp.add&&tb.length>1?`<button class="r" style="margin-left:auto;padding:4px 8px" data-a="deltbl:${ti}">표 삭제</button>`:'';
+const dl=sp.add?`<button class="r" style="margin-left:auto;padding:4px 8px" data-a="deltbl:${ti}">표 삭제</button>`:'';
 h+=`<div class="card">`;
-if(!sp.nt||sp.fl)h+=`<div class="row">${sp.nt?'':`<b>${esc(t.m['측정항목']||sp.n)}${S.type=='scale'?' ('+(S.su||'g')+')':''}</b>`}${sp.fl?`<label>사용 유체</label>${inp(P+'.m.사용 유체',t.m['사용 유체'],'list="fl" style="width:110px"')}`:''}</div>`;
+if(!sp.nt||sp.fl)h+=`<div class="row">${sp.nt?'':`<b>${esc(t.m['측정항목']||sp.n)}${S.type=='scale'?' ('+(S.su||'g')+')':''}</b>`}${sp.fl?`<span class="grp"><label>사용 유체</label>${inp(P+'.m.사용 유체',t.m['사용 유체'],'list="fl" style="width:110px"')}</span>`:''}</div>`;
 const mf=sp.m.filter(k=>k!='Memo'&&k!='사용 유체');
-if(mf.length)h+=`<div class="row">${mf.map(k=>`<label>${k}</label>${sp.o&&sp.o[k]?sel(P+'.m.'+k,t.m[k],k=='단위'&&sp.dp?(sp.dp[t.m['측정항목']]||sp.o[k]):sp.o[k]):inp(P+'.m.'+k,t.m[k],'style="width:90px"')}`).join('')}${dl}</div>`;
+if(mf.length)h+=`<div class="row">${mf.map(k=>`<span class="grp"><label>${k}</label>${sp.o&&sp.o[k]?sel(P+'.m.'+k,t.m[k],k=='단위'&&sp.dp?(sp.dp[t.m['측정항목']]||sp.o[k]):sp.o[k]):inp(P+'.m.'+k,t.m[k],'style="width:90px"')}</span>`).join('')}${dl}</div>`;
 if(sp.m.includes('Memo'))h+=`<div class="row"><label>메모</label>${inp(P+'.m.Memo',t.m.Memo,'style="flex:1"')}</div>`;
 h+=`<div class="sc"><table><tr>${sp.ch?'<th>채널</th>':''}${sp.num?'<th class="st" style="width:34px;min-width:34px;max-width:34px">No.</th>':''}<th class="st"${sp.num?' style="left:34px"':''}>${fx?'구분':'명목값'}</th>${one?'':'<th>회차</th>'}${ths}</tr>`;
 t.rows.forEach((r,ri)=>t.reps.forEach((rl,rp)=>{
@@ -95,7 +95,7 @@ h+='</table></div>';
 if(!fx)h+=`<div class="row" style="margin:6px 0 0"><button class="s" data-a="addrow:${ti}">＋ 명목값 행</button><button class="s" data-a="addrep:${ti}">＋ 회차</button><button class="s" data-a="delrep:${ti}">－ 회차</button></div>`;
 h+='</div>'});
 if(ty.t.some(s=>s.add))h+=`<button class="s" style="width:100%;padding:10px" data-a="addtbl">＋ 표 추가</button>`;
-$('#app').innerHTML=h;document.querySelectorAll('textarea').forEach(gw)}
+$('#app').innerHTML=h;fit();document.querySelectorAll('textarea').forEach(gw)}
 document.addEventListener('input',e=>{
 const p=e.target.dataset.p;if(!p)return;let v=e.target.value;
 if(p=='insp'){v=[...v].map(c=>J[c]||c).join('').toUpperCase();e.target.value=v}
@@ -116,8 +116,8 @@ else if(a=='addrow')t.rows.push({nom:'',ch:'',v:{}});
 else if(a=='delrow'){if(t.rows.length>1)t.rows.splice(y,1)}
 else if(a=='addrep')t.reps.push(t.reps.length+1+'회');
 else if(a=='delrep'){if(t.reps.length>1)t.reps.pop()}
-else if(a=='addtbl')tb.push(mk(0,T[S.type].t[0]));
-else if(a=='deltbl')tb.splice(x,1);
+else if(a=='addtbl'){const l=tb[tb.length-1];tb.push(l?{si:l.si,ch:l.ch,m:{...l.m},reps:l.reps.slice(),rows:l.rows.map(q=>({nom:q.nom,ch:q.ch||'',v:{}}))}:mk(0,T[S.type].t[0]))}
+else if(a=='deltbl'){if(confirm('이 표를 삭제할까요?')){tb.splice(x,1);if(!tb.length)tb.push(mk(0,T[S.type].t[0]))}}
 else if(a=='reset'){if(confirm('입력한 내용을 모두 지울까요?')){const k=S.insp,ty=S.type;S=fresh();S.insp=k;S.type=ty;sv();R()}return}
 else if(a=='save'){await save();return}
 sv();R()});
@@ -144,8 +144,9 @@ try{if(navigator.canShare&&navigator.canShare({files:F})){await navigator.share(
 for(const f of F){const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();a.remove();await new Promise(r=>setTimeout(r,400))}}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+const fit=()=>document.querySelectorAll('.sc').forEach(sc=>{const t=sc.querySelector('table');if(!t)return;t.style.width='auto';sc.style.setProperty('--cw','40px');let F=0;t.rows[0].querySelectorAll('th:not(.u)').forEach(x=>F+=x.offsetWidth);sc.style.setProperty('--cw',Math.max(44,Math.floor((sc.clientWidth-F)/2)-8)+'px');t.style.width=''});
 const gw=el=>{el.style.height='auto';el.style.height=el.scrollHeight+2+'px'};
-addEventListener('resize',()=>{document.querySelectorAll('textarea').forEach(gw)});
+addEventListener('resize',()=>{fit();document.querySelectorAll('textarea').forEach(gw)});
 const kb=$('#kb'),vv=window.visualViewport,dec=el=>el&&el.tagName=='INPUT'&&el.inputMode=='decimal';
 const pos=()=>{if(vv)kb.style.bottom=Math.max(0,innerHeight-vv.height-vv.offsetTop)+'px'};
 if(vv)['resize','scroll'].forEach(v=>vv.addEventListener(v,pos));
