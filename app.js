@@ -16,12 +16,13 @@ let S;try{S=JSON.parse(localStorage.getItem(K))||fresh()}catch(e){S=fresh()}
 const sv=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const TB=()=>S.tb[S.type]||(S.tb[S.type]=T[S.type].t.map((sp,i)=>mk(i,sp)));
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const inApp=()=>{const u=navigator.userAgent;return /KAKAOTALK|NAVER\(inapp|FBAN|FBAV|Instagram|Line\/|; wv\)/i.test(u)||(/iPhone|iPad/.test(u)&&!/Safari/.test(u))};
 const sel=(p,v,o)=>`<select data-p="${p}">${o.map(x=>`<option${x==v?' selected':''}>${x}</option>`).join('')}</select>`;
 const inp=(p,v,x='')=>`<input data-p="${p}" value="${esc(v)}" enterkeyhint="next" autocomplete="off" ${x}>`;
 function R(){
 while(S.units.length<S.n)S.units.push(U());
 const tb=TB(),n=S.n,ty=T[S.type],ths=rng(n).map(u=>`<th class="u">${u+1}번${S.type=='scale'?` (${S.units[u].unit||'g'})`:''}</th>`).join('');
-let h=`<datalist id="fl"><option value="유압"><option value="공압"><option value="수압"></datalist><h1>HCT Calibration</h1><div class="top"><button class="g" data-a="save">저장하기</button><button class="r" data-a="reset">초기화</button></div>`;
+let h=`<datalist id="fl"><option value="유압"><option value="공압"><option value="수압"></datalist><h1>HCT Calibration</h1>${inApp()?'<div class="card" style="background:#fff3cd;color:#664d03;border-color:#e0c36a">앱 안에서 열린 화면에서는 파일 저장이 안 될 수 있습니다. 크롬이나 사파리 같은 브라우저로 열어 주세요.</div>':''}<div class="top"><button class="g" data-a="save">저장하기</button><button class="r" data-a="reset">초기화</button></div>`;
 h+=`<div class="card"><div class="row"><span class="grp"><label>교정자ID</label>${inp('insp',S.insp,'placeholder="T00000" maxlength="6" style="width:84px"')}</span><span class="grp"><label>교정일자</label>${inp('date',S.date,'inputmode="numeric" maxlength="8" style="width:92px"')}</span></div>`;
 h+=`<div class="row"><span class="grp"><label>교정대상</label><select id="type">${Object.keys(T).map(k=>`<option value="${k}"${k==S.type?' selected':''}>${T[k].name}</option>`).join('')}</select></span><span class="grp"><label>장비 수</label><button class="s" data-a="n-">−</button><b>${n}</b><button class="s" data-a="n+">＋</button></span></div>`;
 h+=`<div class="row"><span class="grp"><label>접수번호</label>${inp('pre',S.pre,'maxlength="7" style="width:84px"')}${inp('start',S.start,'inputmode="numeric" placeholder="시작번호" style="width:90px"')}</span><button class="s" data-a="recv">자동입력</button></div>`;
@@ -90,13 +91,15 @@ s+='[TABLE_END]\n\n'});
 let hs='N/A';
 try{hs=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){}
 const rc=cl(q.recv)||'기록'+(u+1),nm=((q.reg?rc+'_'+cl(q.reg):rc)+'.csv').replace(/[\\/:*?"<>|]/g,'_');
-return new File(['\uFEFF'+s+'검증코드(Hash),'+hs],nm,{type:'text/csv;charset=utf-8'})}
-async function save(){
+return new File(['\uFEFF'+s+'검증코드(Hash),'+hs],nm,{type:'text/csv'})}
+async function save(){try{await save0()}catch(e){alert('저장하지 못했습니다: '+(e&&e.message||e))}}
+async function save0(){
 const F=[];for(let u=0;u<S.n;u++)F.push(await build(u));
 if(new Set(F.map(f=>f.name)).size<F.length){alert('접수번호와 등록번호가 같은 장비가 있어 파일 이름이 겹칩니다. 번호를 다르게 입력해 주세요.');return}
 if(window.showDirectoryPicker){try{const d=await showDirectoryPicker({mode:'readwrite',id:'hctcal'});for(const f of F){const w=await(await d.getFileHandle(f.name,{create:true})).createWritable();await w.write(f);await w.close()}alert(F.length+'개 파일을 저장했습니다.');return}catch(e){if(e.name=='AbortError')return}}
 try{if(navigator.canShare&&navigator.canShare({files:F})){await navigator.share({files:F});return}}catch(e){if(e.name=='AbortError')return}
-for(const f of F){const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();a.remove();await new Promise(r=>setTimeout(r,400))}}
+for(const f of F){const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();a.remove();await new Promise(r=>setTimeout(r,400))}
+alert(F.length+'개 파일을 다운로드했습니다. 브라우저의 다운로드 폴더(아이폰은 파일 앱 > 다운로드)를 확인하세요.')}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 const fit=()=>document.querySelectorAll('.sc').forEach(sc=>{const t=sc.querySelector('table');if(!t)return;t.style.width='auto';sc.style.setProperty('--cw','40px');let F=0;t.rows[0].querySelectorAll('th:not(.u)').forEach(x=>F+=x.offsetWidth);sc.style.setProperty('--cw',Math.max(44,Math.floor((sc.clientWidth-F)/2)-8)+'px');t.style.width=''});
@@ -107,11 +110,14 @@ const pos=()=>{if(vv)kb.style.bottom=Math.max(0,innerHeight-vv.height-vv.offsetT
 if(vv)['resize','scroll'].forEach(v=>vv.addEventListener(v,pos));
 document.addEventListener('focusin',e=>{if(dec(e.target)){kb.style.display='flex';pos();const t=e.target;setTimeout(()=>t.scrollIntoView({block:'center',inline:'nearest'}),350)}});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!dec(document.activeElement))kb.style.display='none'},120));
-kb.addEventListener('pointerdown',e=>{
-e.preventDefault();const k=e.target.closest('[data-k]'),el=document.activeElement;if(!k||!dec(el))return;
+const kbAct=e=>{const k=e.target.closest('[data-k]'),el=document.activeElement;if(!k||!dec(el))return;
 if(k.dataset.k=='sign'){const v=el.value;el.value=v[0]=='-'?v.slice(1):'-'+v;el.dispatchEvent(new Event('input',{bubbles:true}))}
 else if(k.dataset.k=='next'){const l=[...document.querySelectorAll('input,textarea')],n=l[l.indexOf(el)+1];n?n.focus():el.blur()}
-else el.blur()});
+else el.blur()};
+kb.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
+kb.addEventListener('touchend',e=>{e.preventDefault();kbAct(e)},{passive:false});
+kb.addEventListener('mousedown',e=>e.preventDefault());
+kb.addEventListener('click',kbAct);
 if(S.mv!==4){delete S.tb.scale;S.units.forEach(q=>{if(!q.unit)q.unit=S.su||'g'});S.mv=4;sv()}
 const yfix=()=>{const y=new Date().getFullYear();if(S.yr!==y){if(/^C-\d{4}-$/.test(S.pre))S.pre='C-'+y+'-';S.yr=y;sv()}};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){const o=S.pre;yfix();if(S.pre!==o)R()}});
