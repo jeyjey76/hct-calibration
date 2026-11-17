@@ -1,28 +1,46 @@
+/* HCT Calibration 디자인(style.css). 색상은 변수로 정의: --bg 배경, --c 카드, --t 글자, --l 선, --p 강조(파랑), --h 표 머리글, --cw 장비 칸 너비(app.js 가 화면에 맞게 계산), --fs 칸 글자 크기. */
 :root{--bg:#f3f4f6;--c:#fff;--t:#1b2230;--l:#cfd5df;--p:#1f4e8c;--h:#e9edf3;--cw:78px;--fs:15px}
+/* 어두운 화면 모드(폰 설정이 다크일 때) 색상. */
 @media(prefers-color-scheme:dark){:root{--bg:#12151b;--c:#1b2029;--t:#e7eaf0;--l:#334050;--h:#252c38;--p:#4a85d6}}
+/* 모든 요소: 테두리/여백 포함 크기 계산. */
 *{box-sizing:border-box}
+/* 기본 글꼴과 바탕. 아이폰 안전영역(노치) 여백 포함. */
 body{margin:0;background:var(--bg);color:var(--t);font:14px/1.4 system-ui,-apple-system,"Malgun Gothic",sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+/* 글자 자동 확대 방지 + 앱 본문 영역(최대 1000px, 아래쪽은 키보드 버튼 바에 가리지 않게 여백). */
 html{-webkit-text-size-adjust:100%}#app{max-width:1000px;margin:0 auto;padding:10px 10px 80px}
 h1{font-size:18px;margin:4px 0}
+/* 위쪽 [저장하기][초기화] 버튼 줄: 스크롤해도 맨 위에 고정. */
 .top{position:sticky;top:0;z-index:5;display:flex;gap:8px;background:var(--bg);padding:6px 0}
 .top button{flex:1;padding:12px;font-size:15px}
+/* 카드: 공통 정보·표 하나를 담는 흰 상자. */
 .card{background:var(--c);border:1px solid var(--l);border-radius:8px;padding:10px;margin-bottom:12px}
+/* 한 줄: 가로로 나열하다가 좁으면 줄바꿈. */
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+/* 입력칸·선택칸·메모칸 공통 모양 / 키보드로 선택 시 파란 테두리. */
 label{font-weight:600;font-size:13px}
 input,select{font:inherit;color:inherit;background:var(--c);border:1px solid var(--l);border-radius:5px;padding:6px;min-width:0}
 input:focus,select:focus,button:focus-visible{outline:2px solid var(--p);outline-offset:-1px}
+/* 버튼 기본 모양과 색(g 초록=저장, r 빨강=삭제/초기화, s 회색=보조). */
 button{font:inherit;border:0;border-radius:6px;padding:8px 12px;font-weight:600;cursor:pointer;color:#fff;background:var(--p)}
 button.g{background:#2a7d4f}button.r{background:#b83a3a}
 button.s{background:var(--h);color:var(--t);border:1px solid var(--l)}
+/* 묶음(.grp): 제목+입력칸이 줄바꿈될 때 함께 이동. */
 .grp{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+/* 메모칸: 글이 길어지면 app.js 가 높이를 자동으로 늘린다. */
 textarea{font:inherit;color:inherit;background:var(--c);border:1px solid var(--l);border-radius:5px;padding:6px;resize:none;overflow:hidden;min-width:0}
 textarea:focus{outline:2px solid var(--p);outline-offset:-1px}
+/* .sc: 표를 감싸는 가로 스크롤 영역(장비 3대 이상일 때 스크롤바 표시). */
 .sc{overflow-x:auto}
 .sc::-webkit-scrollbar{height:10px}.sc::-webkit-scrollbar-thumb{background:var(--l);border-radius:5px}
+/* 표 모양: 선, 글자 줄바꿈 금지, 칸 안의 입력칸은 테두리 없이 꽉 채움. */
 table{border-collapse:collapse;width:100%}
 th,td{border:1px solid var(--l);padding:2px;text-align:center;white-space:nowrap}
 th{background:var(--h);font-size:12px;padding:4px}
 td input{width:100%;min-width:var(--cw,62px);font-size:var(--fs,14px);border:0;text-align:center;padding:6px 2px;background:transparent}
+/* 숫자 칸용 키보드 버튼 바(± 부호 / 다음 ▶ / 완료): 평소엔 숨김, 위치는 app.js 가 키보드 위로 맞춤. */
 #kb{position:fixed;left:0;right:0;bottom:0;display:none;gap:8px;padding:8px;background:var(--h);border-top:1px solid var(--l);z-index:20}#kb button{flex:1;padding:12px;font-size:16px;background:var(--c);color:var(--t);border:1px solid var(--l)}
 td select{width:100%;min-width:var(--cw,62px);border:0;background:transparent;text-align:center;padding:6px 2px;font-size:var(--fs,14px)}
+/* .st: 왼쪽 첫 열 고정(가로 스크롤해도 명목값/구분이 보임). */
 .st{position:sticky;left:0;background:var(--h);z-index:1}
+/* 사용설명서 링크: 버튼처럼 보이는 링크(맨 위 제목 줄 오른쪽). 같은 폴더의 manual.pdf 를 새 탭으로 연다. */
+a.btn{font-weight:600;font-size:13px;padding:6px 10px;border-radius:6px;background:var(--h);color:var(--t);border:1px solid var(--l);text-decoration:none;white-space:nowrap}
